@@ -1,1 +1,213 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do You Love Me? 💖</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff9a9e, #fad0c4, #fbc2eb);
+    overflow: hidden;
+    text-align: center;
+    padding: 20px;
+  }
+
+  /* ---------- Page 1 ---------- */
+  #askPage {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 50px 40px;
+    border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(255, 105, 135, 0.4);
+    max-width: 500px;
+    width: 100%;
+    animation: fadeIn 1s ease;
+  }
+
+  #askPage h1 {
+    font-size: 2rem;
+    color: #d6336c;
+    margin-bottom: 30px;
+    animation: heartbeat 1.5s infinite;
+  }
+
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+  }
+
+  button {
+    padding: 15px 40px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+  }
+
+  #yesBtn {
+    background: linear-gradient(135deg, #ff4b8b, #ff1e6b);
+    color: white;
+    box-shadow: 0 8px 20px rgba(255, 30, 107, 0.5);
+  }
+
+  #yesBtn:hover { transform: scale(1.1); }
+
+  #noBtn {
+    background: #eee;
+    color: #555;
+    position: relative;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+  }
+
+  /* ---------- Page 2 ---------- */
+  #lovePage {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #ff1e6b, #ff758c);
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  #lovePage h1 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: clamp(1.8rem, 6vw, 3.5rem);
+    text-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 2;
+    animation: pulse 1.5s infinite;
+  }
+
+  .heart {
+    position: absolute;
+    color: #ff2e63;
+    font-size: 24px;
+    animation: floatUp linear infinite;
+    user-select: none;
+    z-index: 1;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-110vh) scale(1.8) rotate(360deg); opacity: 0; }
+  }
+
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25%      { transform: scale(1.08); }
+    50%      { transform: scale(1); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%      { transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <div id="askPage">
+    <h1>Do You Love Me? ❤️</h1>
+    <div class="buttons">
+      <button id="yesBtn">Yes 💖</button>
+      <button id="noBtn">No 🙈</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div id="lovePage">
+    <h1>I Knew It! I Love You Too 💕</h1>
+  </div>
+
+<script>
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn  = document.getElementById('noBtn');
+  const askPage  = document.getElementById('askPage');
+  const lovePage = document.getElementById('lovePage');
+
+  /* ---------- YES → hearts page ---------- */
+  yesBtn.addEventListener('click', () => {
+    askPage.style.display = 'none';
+    lovePage.style.display = 'block';
+    startHearts();
+  });
+
+  /* ---------- NO → runs away from cursor ---------- */
+  const moveNoBtn = (e) => {
+    const pad = 20; // keep it inside screen
+    const maxX = window.innerWidth  - noBtn.offsetWidth  - pad;
+    const maxY = window.innerHeight - noBtn.offsetHeight - pad;
+
+    let x, y;
+
+    // If event has coordinates (mouse/touch) → jump to random pos far from cursor
+    if (e && e.clientX !== undefined) {
+      const cx = e.clientX, cy = e.clientY;
+      // Try up to 20 random spots, pick one far from the cursor
+      let best = { x: Math.random() * maxX, y: Math.random() * maxY };
+      let bestDist = -1;
+      for (let i = 0; i < 20; i++) {
+        const rx = Math.random() * maxX;
+        const ry = Math.random() * maxY;
+        const d = Math.hypot(rx + noBtn.offsetWidth/2 - cx,
+                             ry + noBtn.offsetHeight/2 - cy);
+        if (d > bestDist) { bestDist = d; best = { x: rx, y: ry }; }
+      }
+      x = best.x; y = best.y;
+    } else {
+      // Fallback random
+      x = Math.random() * maxX;
+      y = Math.random() * maxY;
+    }
+
+    noBtn.style.position = 'fixed';
+    noBtn.style.left = Math.max(pad, x) + 'px';
+    noBtn.style.top  = Math.max(pad, y) + 'px';
+  };
+
+  // Move when cursor gets close
+  noBtn.addEventListener('mouseenter', moveNoBtn);
+  noBtn.addEventListener('mouseover',  moveNoBtn);
+  // Touch support
+  noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveNoBtn(e.touches[0]); }, {passive:false});
+  // If by some miracle they click it, still dodge + do nothing
+  noBtn.addEventListener('click', (e) => { e.preventDefault(); moveNoBtn(e); });
+
+  /* ---------- Floating hearts ---------- */
+  function startHearts() {
+    const emojis = ['❤️','💖','💕','💗','💘','💓','🌹'];
+    setInterval(() => {
+      const h = document.createElement('div');
+      h.className = 'heart';
+      h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      h.style.left = Math.random() * 100 + 'vw';
+      h.style.bottom = '-50px';
+      const dur = 4 + Math.random() * 4;
+      h.style.animationDuration = dur + 's';
+      h.style.fontSize = (18 + Math.random() * 30) + 'px';
+      lovePage.appendChild(h);
+      setTimeout(() => h.remove(), dur * 1000);
+    }, 200);
+  }
+</script>
+</body>
+</html>
